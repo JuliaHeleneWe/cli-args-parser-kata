@@ -2,6 +2,10 @@ package de.jw.parser.kata;
 
 import java.util.HashMap;
 
+/**
+ * A parser that converts a string or string array
+ * into a HashMap of key-value pairs
+ */
 public class Parser {
 	
 	HashMap<String, Object> map;
@@ -10,17 +14,34 @@ public class Parser {
 		map = new HashMap<>();
 	}
 	
+	/**
+	 * Converts a string array of the structure: ["--key1","--key2","value2"]
+	 *  to a String-Object HashMap of key-value pairs.
+	 *  Keys should be preceded by "--"; if a key is not followed by a value, 
+	 *  the value will automatically be true
+	 */
 	public HashMap<String, Object> parse(String[] args) {
-		for(int i = 0; i < args.length; i++) {
+		int i = 0;
+		while(i < args.length) {
 			String[] nextCommand = findNextCommand(args, i);
 			parsePair(nextCommand);
+			i+= (nextCommand.length);
 		}
 		return map;
 	}
 
+	/**
+	 * Converts a string of the structure: "--key1 --key2 value2"
+	 *  to a String-Object HashMap of key-value pairs.
+	 *  Keys should be preceded by "--"; if a key is not followed by a value, 
+	 *  the value will automatically be true
+	 */
 	public HashMap<String, Object> parse(String args) {
-		String[] commands = args.split("--");
+		String[] commands = args.split("--",0);
 		for(String command: commands) {
+			if(command.isBlank()) {
+				continue;
+			}
 			parsePair(command.split(" "));
 		}
 		return map;
@@ -35,11 +56,20 @@ public class Parser {
 	
 	private void parsePair(String[] pair) {
 		String key = pair[0].replace("--", "");
-		Object value = getValue(pair);
+		if(key.isEmpty() == false) {
+			insertValue(key, pair);
+		}
+	}
+	
+	private void insertValue(String key, String[] pair) {
+		Object value = parseNewValue(pair);
+		if(map.containsKey(key)) {
+			value = new Object[] {map.get(key), value};
+		}
 		map.put(key, value);
 	}
 	
-	private Object getValue(String[] commands) {
+	private Object parseNewValue(String[] commands) {
 		Object value = true;
 		if(commands.length > 1) {
 			try {

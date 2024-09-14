@@ -1,5 +1,6 @@
 package de.jw.parser.kata;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -40,11 +41,18 @@ public class ParserTest {
 	}
 	
 	private void compareMaps(HashMap<String, Object> expected, HashMap<String, Object> actual) {
+		assertEquals(expected.size(), actual.size());
 		for (Map.Entry<String, Object> entry : expected.entrySet()) {
             String expectedKey = entry.getKey();
             Object value = entry.getValue();
             assertTrue(actual.containsKey(expectedKey));
-    		assertEquals(value, actual.get(expectedKey));
+            Object actualValue = actual.get(expectedKey);
+            if(value instanceof Object[] && actualValue instanceof Object[]) {
+            	assertArrayEquals((Object[])value, (Object[])actualValue);
+            }
+            else {
+            	assertEquals(value, actualValue);
+            }
         }
 	}
 	
@@ -67,6 +75,16 @@ public class ParserTest {
 	      Arguments.of(new String[]{"--foo","--bar","baz", "--number","1"}, new HashMap<String, Object>() {{
 	    	    put("foo", true);
 	    	    put("bar", "baz");
+	    	    put("number", 1);
+	      }}),
+	      Arguments.of(new String[]{"--foo","--bar","baz","--bar","zab", "--number","1"}, new HashMap<String, Object>() {{
+	    	    put("foo", true);
+	    	    put("bar", new Object[]{"baz", "zab"});
+	    	    put("number", 1);
+	      }}),
+	      Arguments.of("--foo --bar baz --bar zab --number 1", new HashMap<String, Object>() {{
+	    	    put("foo", true);
+	    	    put("bar", new Object[]{"baz", "zab"});
 	    	    put("number", 1);
 	      }})
 	    );
