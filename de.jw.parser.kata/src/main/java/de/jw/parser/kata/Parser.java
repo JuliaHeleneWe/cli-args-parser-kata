@@ -1,5 +1,6 @@
 package de.jw.parser.kata;
 
+import java.util.Arrays;
 import java.util.HashMap;
 
 /**
@@ -64,7 +65,8 @@ public class Parser {
 	private void insertValue(String key, String[] pair) {
 		Object value = parseNewValue(pair);
 		if(map.containsKey(key)) {
-			value = new Object[] {map.get(key), value};
+			value = getArrayValue(key, value);
+			
 		}
 		map.put(key, value);
 	}
@@ -78,6 +80,19 @@ public class Parser {
 			catch(NumberFormatException ex) {
 				value = commands[1];
 			}
+		}
+		return value;
+	}
+
+	private Object getArrayValue(String key, Object value) {
+		if(map.get(key) instanceof Object[]) {
+			Object[] originalValue = (Object[])map.get(key);
+			int originalLength = originalValue.length;
+			originalValue = Arrays.copyOf(originalValue, originalLength + 1);
+			originalValue[originalLength] = value;
+			value = originalValue;
+		} else {
+			value = new Object[] {map.get(key), value};
 		}
 		return value;
 	}

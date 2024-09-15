@@ -86,6 +86,11 @@ public class ParserTest {
 	    	    put("foo", true);
 	    	    put("bar", new Object[]{"baz", "zab"});
 	    	    put("number", 1);
+	      }}),
+	      Arguments.of("--foo --bar baz --bar zab --bar zar --number 1", new HashMap<String, Object>() {{
+	    	    put("foo", true);
+	    	    put("bar", new Object[]{"baz", "zab", "zar"});
+	    	    put("number", 1);
 	      }})
 	    );
 	}
